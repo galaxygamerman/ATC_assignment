@@ -2,57 +2,60 @@ import tkinter as tk
 from tkinter import messagebox
 from automata.fa.nfa import NFA
 from automata.fa.dfa import DFA
-# from automata.conversions import nfa_to_dfa	# No longer exists
 import networkx as nx
 import matplotlib.pyplot as plt
 
 def nfa_to_dfa(nfa):
-	"""Manually converts an NFA to an equivalent DFA."""
+	"""Convert NFA to DFA."""
 	dfa_states = {}
 	dfa_transitions = {}
 	queue = []
 
-	# Start with the initial state of the NFA
+	# Start with the epsilon closure of the NFA's initial state
 	initial_state = frozenset({nfa.initial_state})
 	queue.append(initial_state)
 	dfa_states[initial_state] = True
 
-	# Use a set of visited states to avoid redundant processing
 	visited = set()
 
 	while queue:
 		current_set = queue.pop(0)
-		current_name = "-".join(sorted(map(str, current_set)))  # Ensure states are strings
+		current_name = "-".join(sorted(map(str, current_set)))
 
-		# Create transitions for the current DFA state
-		dfa_transitions[current_name] = {}
+		if current_name not in dfa_transitions:
+			dfa_transitions[current_name] = {}
+
 		for symbol in nfa.input_symbols:
 			# Compute the next state for this symbol
 			next_set = set()
 			for state in current_set:
 				next_set.update(nfa.transitions.get(state, {}).get(symbol, set()))
 
-			next_name = "-".join(sorted(map(str, next_set)))  # Ensure states are strings
-			dfa_transitions[current_name][symbol] = next_name
+			if next_set:
+				next_name = "-".join(sorted(map(str, next_set)))
+				dfa_transitions[current_name][symbol] = next_name
 
-			# Add this state to the queue if not already processed
-			if frozenset(next_set) not in visited:
-				visited.add(frozenset(next_set))
-				queue.append(frozenset(next_set))
+				if frozenset(next_set) not in visited:
+					visited.add(frozenset(next_set))
+					queue.append(frozenset(next_set))
 
-	# Identify final states in the DFA
+		for symbol in nfa.input_symbols:
+			if symbol not in dfa_transitions[current_name]:
+				dfa_transitions[current_name][symbol] = "dead_state"
+
 	dfa_final_states = {
 		"-".join(sorted(map(str, state)))
 		for state in dfa_states
 		if any(nfa_final in state for nfa_final in nfa.final_states)
 	}
 
-	# Create the DFA
+	dfa_initial_state = "-".join(sorted(map(str, initial_state)))
+
 	return DFA(
 		states=set(dfa_transitions.keys()),
 		input_symbols=nfa.input_symbols,
 		transitions=normalize_transitions(dfa_transitions),
-		initial_state="-".join(sorted(map(str, initial_state))),
+		initial_state=dfa_initial_state,
 		final_states=dfa_final_states
 	)
 
@@ -68,14 +71,12 @@ def draw_dfa(dfa):
 	"""Draw the DFA using NetworkX and Matplotlib."""
 	graph = nx.DiGraph()
 
-	# Add states and transitions
 	for state in dfa.states:
 		graph.add_node(state, shape="doublecircle" if state in dfa.final_states else "circle")
 	for (state, symbol), next_state in dfa.transitions.items():
 		graph.add_edge(state, next_state, label=symbol)
 
-	# Draw the graph
-	pos = nx.spring_layout(graph)  # Positioning algorithm
+	pos = nx.spring_layout(graph)
 	nx.draw(graph, pos, with_labels=True, node_size=3000, node_color="lightblue", font_size=10)
 	edge_labels = nx.get_edge_attributes(graph, 'label')
 	nx.draw_networkx_edge_labels(graph, pos, edge_labels=edge_labels)
@@ -93,6 +94,7 @@ def convert_and_draw():
 	try:
 		# Convert regex to NFA
 		nfa = NFA.from_regex(regex)
+
 		# Convert NFA to DFA
 		dfa = nfa_to_dfa(nfa)
 
