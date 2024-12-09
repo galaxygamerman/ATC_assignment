@@ -6,14 +6,6 @@ from automata.fa.dfa import DFA
 import networkx as nx
 import matplotlib.pyplot as plt
 
-def normalize_transitions(transitions):
-	"""Normalize DFA transitions to the format required by automata-lib."""
-	normalized = {}
-	for state, transitions_dict in transitions.items():
-		for symbol, next_state in transitions_dict.items():
-			normalized[(state, symbol)] = next_state
-	return normalized
-
 def nfa_to_dfa(nfa):
 	"""Manually converts an NFA to an equivalent DFA."""
 	dfa_states = {}
@@ -25,7 +17,7 @@ def nfa_to_dfa(nfa):
 	queue.append(initial_state)
 	dfa_states[initial_state] = True
 
-	# Set of visited states to avoid redundant processing
+	# Use a set of visited states to avoid redundant processing
 	visited = set()
 
 	while queue:
@@ -63,6 +55,14 @@ def nfa_to_dfa(nfa):
 		initial_state="-".join(sorted(map(str, initial_state))),
 		final_states=dfa_final_states
 	)
+
+def normalize_transitions(transitions):
+	"""Normalize DFA transitions to the format required by automata-lib."""
+	normalized = {}
+	for state, transitions_dict in transitions.items():
+		for symbol, next_state in transitions_dict.items():
+			normalized[(state, symbol)] = next_state
+	return normalized
 
 def draw_dfa(dfa):
 	"""Draw the DFA using NetworkX and Matplotlib."""
