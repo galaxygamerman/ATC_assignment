@@ -6,20 +6,31 @@ from automata.fa.dfa import DFA
 import networkx as nx
 import matplotlib.pyplot as plt
 
+def normalize_transitions(transitions):
+	"""Normalize DFA transitions to the format required by automata-lib."""
+	normalized = {}
+	for state, transitions_dict in transitions.items():
+		for symbol, next_state in transitions_dict.items():
+			normalized[(state, symbol)] = next_state
+	return normalized
+
 def nfa_to_dfa(nfa):
 	"""Manually converts an NFA to an equivalent DFA."""
 	dfa_states = {}
 	dfa_transitions = {}
 	queue = []
 
-	# Start with the epsilon closure of the NFA's initial state
+	# Start with the initial state of the NFA
 	initial_state = frozenset({nfa.initial_state})
 	queue.append(initial_state)
 	dfa_states[initial_state] = True
 
+	# Set of visited states to avoid redundant processing
+	visited = set()
+
 	while queue:
 		current_set = queue.pop(0)
-		current_name = "-".join(sorted(current_set))
+		current_name = "-".join(sorted(map(str, current_set)))  # Ensure states are strings
 
 		# Create transitions for the current DFA state
 		dfa_transitions[current_name] = {}
@@ -28,18 +39,18 @@ def nfa_to_dfa(nfa):
 			next_set = set()
 			for state in current_set:
 				next_set.update(nfa.transitions.get(state, {}).get(symbol, set()))
-			
-			next_name = "-".join(sorted(next_set))
+
+			next_name = "-".join(sorted(map(str, next_set)))  # Ensure states are strings
 			dfa_transitions[current_name][symbol] = next_name
 
 			# Add this state to the queue if not already processed
-			if frozenset(next_set) not in dfa_states:
+			if frozenset(next_set) not in visited:
+				visited.add(frozenset(next_set))
 				queue.append(frozenset(next_set))
-				dfa_states[frozenset(next_set)] = True
 
 	# Identify final states in the DFA
 	dfa_final_states = {
-		"-".join(sorted(state))
+		"-".join(sorted(map(str, state)))
 		for state in dfa_states
 		if any(nfa_final in state for nfa_final in nfa.final_states)
 	}
@@ -48,8 +59,8 @@ def nfa_to_dfa(nfa):
 	return DFA(
 		states=set(dfa_transitions.keys()),
 		input_symbols=nfa.input_symbols,
-		transitions=dfa_transitions,
-		initial_state="-".join(sorted(initial_state)),
+		transitions=normalize_transitions(dfa_transitions),
+		initial_state="-".join(sorted(map(str, initial_state))),
 		final_states=dfa_final_states
 	)
 
