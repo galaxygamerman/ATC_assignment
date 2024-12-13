@@ -9,6 +9,7 @@ class FiniteStateMachineApp:
     transitions : dict
     num_states_frame : tk.Frame
     num_states_entry : tk.Entry
+    num_states : int
     state_names_frame : tk.Frame
     transitions_frame : tk.Frame
     
@@ -36,8 +37,8 @@ class FiniteStateMachineApp:
 
     def get_num_states(self):
         try:
-            num_states = int(self.num_states_entry.get())
-            if num_states <= 0:
+            self.num_states = int(self.num_states_entry.get())
+            if self.num_states <= 0:
                 messagebox.showerror("Error", "Number of states must be a positive integer.")
                 return
         except ValueError:
@@ -48,7 +49,7 @@ class FiniteStateMachineApp:
         self.state_names_frame.pack_forget()
         self.state_names_frame = tk.Frame(self.root)
         self.state_names_frame.pack()
-        for i in range(num_states):
+        for i in range(self.num_states):
             tk.Label(self.state_names_frame, text=f"State {i+1} name:").pack(side=tk.LEFT)
             entry = tk.Entry(self.state_names_frame)
             entry.pack(side=tk.LEFT)
