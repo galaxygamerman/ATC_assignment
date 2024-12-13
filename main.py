@@ -105,7 +105,7 @@ class FiniteStateMachineApp:
         pos = nx.spring_layout(G)
         nx.draw_networkx_nodes(G, pos, node_color='rebeccapurple')
         nx.draw_networkx_labels(G, pos)
-        nx.draw_networkx_edges(G, pos, edge_color='gray')
+        nx.draw_networkx_edges(G, pos, edge_color='gray', connectionstyle='arc3,rad=0.5')  # Adjust rad for self-loops
         nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'label'))
         plt.show()
 
