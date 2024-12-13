@@ -4,6 +4,14 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 class FiniteStateMachineApp:
+    root : tk
+    states : list
+    transitions : dict
+    num_states_frame : tk.Frame
+    num_states_entry : tk.Entry
+    state_names_frame : tk.Frame
+    transitions_frame : tk.Frame
+    
     def __init__(self, root):
         self.root = root
         self.root.title("Finite State Machine App")
@@ -13,7 +21,7 @@ class FiniteStateMachineApp:
         # Create input frame for number of states
         self.num_states_frame = tk.Frame(self.root)
         self.num_states_frame.pack()
-        tk.Label(self.num_states_frame, text="Enter number of states:").pack(side=tk.LEFT)
+        tk.Label(self.num_states_frame, text="Enter number of states (dead states can be excluded from this number):").pack(side=tk.LEFT)
         self.num_states_entry = tk.Entry(self.num_states_frame)
         self.num_states_entry.pack(side=tk.LEFT)
         tk.Button(self.num_states_frame, text="Submit", command=self.get_num_states).pack(side=tk.LEFT)
