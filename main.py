@@ -80,26 +80,33 @@ class FiniteStateMachineApp:
     def get_transitions(self):
         transitions = {}
         for state, entry in self.transitions.items():
-            transitions[state] = entry.get().split(",")
+            transition_list = entry.get().split(",")
+            transitions[state] = []
+            for t in transition_list:
+                # Split each transition string into state and input symbol
+                next_state, input_symbol = t.split("->")
+                transitions[state].append((next_state, input_symbol))
 
         # Print the finite state machine
         print("Finite State Machine:")
         print("States:", list(self.transitions.keys()))
         print("Transitions:")
         for state, transition in transitions.items():
-            print(f"{state}: {transition}")
+            for next_state, input_symbol in transition:
+                print(f"{state} on {input_symbol} -> {next_state}")
 
         # Create DFA digraph
         G = nx.DiGraph()
         for state, transition in transitions.items():
-            for t in transition:
-                G.add_edge(state, t)
+            for next_state, input_symbol in transition:
+                G.add_edge(state, next_state, label=input_symbol)
 
-        # Draw DFA digraph
+        # Draw DFA digraph with edge labels
         pos = nx.spring_layout(G)
-        nx.draw_networkx_nodes(G, pos, node_color='lightblue')
+        nx.draw_networkx_nodes(G, pos, node_color='rebeccapurple')
         nx.draw_networkx_labels(G, pos)
         nx.draw_networkx_edges(G, pos, edge_color='gray')
+        nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'label'))
         plt.show()
 
 if __name__ == "__main__":
