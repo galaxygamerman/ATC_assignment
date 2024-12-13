@@ -84,7 +84,7 @@ class FiniteStateMachineApp:
             transitions[state] = []
             for t in transition_list:
                 # Split each transition string into state and input symbol
-                next_state, input_symbol = t.split("->")
+                input_symbol, next_state = t.split("->")
                 transitions[state].append((next_state, input_symbol))
 
         # Print the finite state machine
