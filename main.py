@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
-import networkx as nx
-import matplotlib.pyplot as plt
+from graphviz import Digraph
 
 class FiniteStateMachineApp:
     root : tk
@@ -50,7 +49,7 @@ class FiniteStateMachineApp:
         self.state_names_frame = tk.Frame(self.root)
         self.state_names_frame.pack()
         for i in range(self.num_states):
-            tk.Label(self.state_names_frame, text=f"State {i+1} name:").pack(side=tk.LEFT)
+            tk.Label(self.state_names_frame, text=f"State {i + 1} name:").pack(side=tk.LEFT)
             entry = tk.Entry(self.state_names_frame)
             entry.pack(side=tk.LEFT)
             self.states.append(entry)
@@ -85,7 +84,7 @@ class FiniteStateMachineApp:
             for t in transition_list:
                 # Split each transition string into state and input symbol
                 input_symbol, next_state = t.split("->")
-                transitions[state].append((next_state, input_symbol))
+                transitions[state].append((next_state.strip(), input_symbol.strip()))
 
         # Print the finite state machine
         print("Finite State Machine:")
@@ -95,19 +94,15 @@ class FiniteStateMachineApp:
             for next_state, input_symbol in transition:
                 print(f"{state} on {input_symbol} -> {next_state}")
 
-        # Create DFA digraph
-        G = nx.DiGraph()
+        # Create DFA graph using graphviz
+        dot = Digraph(comment='Finite State Machine')
         for state, transition in transitions.items():
+            dot.node(state)  # Add state node
             for next_state, input_symbol in transition:
-                G.add_edge(state, next_state, label=input_symbol)
+                dot.edge(state, next_state, label=input_symbol)  # Add transition edge
 
-        # Draw DFA digraph with edge labels
-        pos = nx.spring_layout(G)
-        nx.draw_networkx_nodes(G, pos, node_color='rebeccapurple')
-        nx.draw_networkx_labels(G, pos)
-        nx.draw_networkx_edges(G, pos, edge_color='gray', connectionstyle='arc3,rad=0.5')  # Adjust rad for self-loops
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'label'))
-        plt.show()
+        # Render the graph to a file and display it
+        dot.render('fsm','generatedImages', format='png', cleanup=True)  # Save as PNG and cleanup
 
 if __name__ == "__main__":
     root = tk.Tk()
