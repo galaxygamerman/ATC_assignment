@@ -39,8 +39,7 @@ class FiniteStateMachineApp:
         try:
             self.num_states = int(self.num_states_entry.get())
             if self.num_states <= 0:
-                messagebox.showerror("Error", "Number of states must be a positive integer.")
-                return
+                raise ValueError
         except ValueError:
             messagebox.showerror("Error", "Invalid input. Please enter a positive integer.")
             return
@@ -107,7 +106,7 @@ class FiniteStateMachineApp:
 
         # Load the image using PIL and display in the window
         self.display_image('generatedImages/fsm.png')
-    
+
     def display_image(self, image_path):
         # Create a new top-level window to display the image
         image_window = tk.Toplevel(self.root)
