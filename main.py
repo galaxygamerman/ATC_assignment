@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 from graphviz import Digraph
+from PIL import Image, ImageTk
 
 class FiniteStateMachineApp:
     root : tk
@@ -101,8 +102,29 @@ class FiniteStateMachineApp:
             for next_state, input_symbol in transition:
                 dot.edge(state, next_state, label=input_symbol)  # Add transition edge
 
-        # Render the graph to a file and display it
+        # Render the graph to a file
         dot.render('fsm','generatedImages', format='png', cleanup=True)  # Save as PNG and cleanup
+
+        # Load the image using PIL and display in the window
+        self.display_image('generatedImages/fsm.png')
+    
+    def display_image(self, image_path):
+        # Create a new top-level window to display the image
+        image_window = tk.Toplevel(self.root)
+        image_window.title("Generated Diagram")
+
+        # Load the image using PIL
+        img = Image.open(image_path)
+        img = img.resize((img.width*2, img.height*2), Image.LANCZOS)  # Resize image if necessary
+        photo = ImageTk.PhotoImage(img)
+
+        # Create a label to display the image
+        label = tk.Label(image_window, image=photo)
+        label.image = photo  # Keep a reference to avoid garbage collection
+        label.pack()
+
+        # Add a button to close the image window
+        tk.Button(image_window, text="Close", command=image_window.destroy).pack()
 
 if __name__ == "__main__":
     root = tk.Tk()
