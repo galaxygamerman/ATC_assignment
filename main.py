@@ -95,20 +95,52 @@ class FiniteStateMachineApp:
 				input_symbol, next_state = t.split("->")
 				self.transitions[current_state].append((input_symbol.strip(), next_state.strip()))
 
+		# Create input fields for initial and final states
+		self.final_initial_states_frame = tk.Frame(self.root)
+		self.final_initial_states_frame.pack()
+
+		tk.Label(self.final_initial_states_frame, text="Enter initial state:").pack(side=tk.LEFT)
+		self.initial_state_entry = tk.Entry(self.final_initial_states_frame)
+		self.initial_state_entry.pack(side=tk.LEFT)
+
+		tk.Label(self.final_initial_states_frame, text="Enter final states (comma-separated):").pack(side=tk.LEFT)
+		self.final_states_entry = tk.Entry(self.final_initial_states_frame)
+		self.final_states_entry.pack(side=tk.LEFT)
+
+		# Create button to submit initial and final states
+		tk.Button(self.final_initial_states_frame, text="Submit", command=self.process_output).pack(side=tk.LEFT)
+
+	def process_output(self):
+		self.initial_state = self.initial_state_entry.get().strip()
+		self.final_states = [state.strip() for state in self.final_states_entry.get().split(",")]
+
 		# Print the finite state machine
 		print("Finite State Machine:")
 		print("States:", list(self.transitions_entries.keys()))
 		print("Transitions:", self.transitions)
+		print("Initial State:", self.initial_state)
+		print("Final States:", self.final_states)
 
 		# Create DFA graph using graphviz
 		dot = Digraph(comment='Finite State Machine')
+
+		# Create an invisble node to point to the initial node
+		dot.node('Start', color='white')
+
 		for current_state, transitions_for_current_list in self.transitions.items():
 			dot.node(current_state)  # Add state node
 			for input_symbol, next_state in transitions_for_current_list:
 				dot.edge(current_state, next_state, label=input_symbol)  # Add transition edge
 
+		# Mark the initial state
+		dot.edge('Start',self.initial_state)
+
+		# Mark final states
+		for final_state in self.final_states:
+			dot.node(final_state, shape='doublecircle')  # Change shape to indicate final state
+
 		# Render the graph to a file
-		dot.render('fsm','generatedImages', format='png', cleanup=True)  # Save as PNG and cleanup
+		dot.render('fsm', 'generatedImages', format='png', cleanup=True)  # Save as PNG and cleanup
 
 		# Load the image using PIL and display in the window
 		self.display_image('generatedImages/fsm.png')
