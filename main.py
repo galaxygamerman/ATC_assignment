@@ -4,20 +4,29 @@ from graphviz import Digraph
 from PIL import Image, ImageTk
 
 class FiniteStateMachineApp:
-	root : tk
-	states : list
-	transitions : dict
-	num_states_frame : tk.Frame
-	num_states_entry : tk.Entry
-	num_states : int
-	state_names_frame : tk.Frame
-	transitions_frame : tk.Frame
+	#The Window
+	root: tk
+
+	# Frames
+	num_states_frame: tk.Frame
+	state_names_frame: tk.Frame
+	transitions_frame: tk.Frame
+
+	#Entries
+	num_states_entry: tk.Entry
+	state_names_entries: list[tk.Entry]
+	transitions_entries: dict[str,tk.Entry]
+
+	#Saved Values
+	num_states: int
+	state_names: list[str]
+	transitions: dict[str,list[set[str]]]
 
 	def __init__(self, root):
 		self.root = root
 		self.root.title("Finite State Machine App")
-		self.states = []
-		self.transitions = {}
+		self.state_names_entries = []
+		self.transitions_entries = {}
 
 		# Create input frame for number of states
 		self.num_states_frame = tk.Frame(self.root)
@@ -52,14 +61,14 @@ class FiniteStateMachineApp:
 			tk.Label(self.state_names_frame, text=f"State {i + 1} name:").pack(side=tk.LEFT)
 			entry = tk.Entry(self.state_names_frame)
 			entry.pack(side=tk.LEFT)
-			self.states.append(entry)
+			self.state_names_entries.append(entry)
 
 		# Create button to submit state names
 		tk.Button(self.state_names_frame, text="Submit", command=self.get_state_names).pack(side=tk.LEFT)
 
 	def get_state_names(self):
-		state_names = [state.get() for state in self.states]
-		if len(set(state_names)) != len(state_names):
+		self.state_names = [state.get() for state in self.state_names_entries]
+		if len(set(self.state_names)) != len(self.state_names):
 			messagebox.showerror("Error", "State names must be unique.")
 			return
 
@@ -67,39 +76,36 @@ class FiniteStateMachineApp:
 		self.transitions_frame.pack_forget()
 		self.transitions_frame = tk.Frame(self.root)
 		self.transitions_frame.pack()
-		for i, state in enumerate(state_names):
+		for state in self.state_names:
 			tk.Label(self.transitions_frame, text=f"Transitions for {state}:").pack(side=tk.LEFT)
 			entry = tk.Entry(self.transitions_frame)
 			entry.pack(side=tk.LEFT)
-			self.transitions[state] = entry
+			self.transitions_entries[state] = entry
 
 		# Create button to submit transitions
 		tk.Button(self.transitions_frame, text="Submit", command=self.get_transitions).pack(side=tk.LEFT)
 
 	def get_transitions(self):
-		transitions = {}
-		for state, entry in self.transitions.items():
-			transition_list = entry.get().split(",")
-			transitions[state] = []
-			for t in transition_list:
+		self.transitions = {}
+		for current_state, entry in self.transitions_entries.items():
+			transitions_for_current_state = entry.get().split(",")
+			self.transitions[current_state] = []
+			for t in transitions_for_current_state:
 				# Split each transition string into state and input symbol
 				input_symbol, next_state = t.split("->")
-				transitions[state].append((next_state.strip(), input_symbol.strip()))
+				self.transitions[current_state].append((input_symbol.strip(), next_state.strip()))
 
 		# Print the finite state machine
 		print("Finite State Machine:")
-		print("States:", list(self.transitions.keys()))
-		print("Transitions:")
-		for state, transition in transitions.items():
-			for next_state, input_symbol in transition:
-				print(f"{state} on {input_symbol} -> {next_state}")
+		print("States:", list(self.transitions_entries.keys()))
+		print("Transitions:", self.transitions)
 
 		# Create DFA graph using graphviz
 		dot = Digraph(comment='Finite State Machine')
-		for state, transition in transitions.items():
-			dot.node(state)  # Add state node
-			for next_state, input_symbol in transition:
-				dot.edge(state, next_state, label=input_symbol)  # Add transition edge
+		for current_state, transitions_for_current_list in self.transitions.items():
+			dot.node(current_state)  # Add state node
+			for input_symbol, next_state in transitions_for_current_list:
+				dot.edge(current_state, next_state, label=input_symbol)  # Add transition edge
 
 		# Render the graph to a file
 		dot.render('fsm','generatedImages', format='png', cleanup=True)  # Save as PNG and cleanup
