@@ -24,8 +24,8 @@ class DFAgenerator:
 	num_states: int
 	state_names: list[str]
 	transitions: dict[str,list[set[str]]]
-	initial_state : str
-	final_states : list[str]
+	initial_state: str
+	final_states: list[str]
 
 	def __init__(self, root):
 		self.root = root
