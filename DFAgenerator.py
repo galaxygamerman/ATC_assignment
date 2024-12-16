@@ -3,7 +3,7 @@ from tkinter import messagebox
 from graphviz import Digraph
 from PIL import Image, ImageTk
 
-class FiniteStateMachineApp:
+class DFAgenerator:
 	#The Window
 	root: tk
 
@@ -165,5 +165,5 @@ class FiniteStateMachineApp:
 
 if __name__ == "__main__":
 	root = tk.Tk()
-	app = FiniteStateMachineApp(root)
+	app = DFAgenerator(root)
 	root.mainloop()
