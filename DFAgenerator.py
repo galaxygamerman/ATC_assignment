@@ -11,16 +11,21 @@ class DFAgenerator:
 	num_states_frame: tk.Frame
 	state_names_frame: tk.Frame
 	transitions_frame: tk.Frame
+	final_initial_states_frame : tk.Frame
 
 	#Entries
 	num_states_entry: tk.Entry
 	state_names_entries: list[tk.Entry]
 	transitions_entries: dict[str,tk.Entry]
+	initial_state_entry: tk.Entry
+	final_states_entry: tk.Entry
 
 	#Saved Values
 	num_states: int
 	state_names: list[str]
 	transitions: dict[str,list[set[str]]]
+	initial_state : str
+	final_states : list[str]
 
 	def __init__(self, root):
 		self.root = root
