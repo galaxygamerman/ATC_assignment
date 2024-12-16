@@ -39,7 +39,7 @@ class DFAgenerator:
 		tk.Label(self.num_states_frame, text="Enter number of states (dead states can be excluded from this number):").pack(side=tk.LEFT)
 		self.num_states_entry = tk.Entry(self.num_states_frame)
 		self.num_states_entry.pack(side=tk.LEFT)
-		tk.Button(self.num_states_frame, text="Submit", command=self.get_num_states).pack(side=tk.LEFT)
+		tk.Button(self.num_states_frame, text="Save", command=self.get_num_states).pack(side=tk.LEFT)
 
 		# Create input frame for state names
 		self.state_names_frame = tk.Frame(self.root)
@@ -69,7 +69,7 @@ class DFAgenerator:
 			self.state_names_entries.append(entry)
 
 		# Create button to submit state names
-		tk.Button(self.state_names_frame, text="Submit", command=self.get_state_names).pack(side=tk.LEFT)
+		tk.Button(self.state_names_frame, text="Save", command=self.get_state_names).pack(side=tk.LEFT)
 
 	def get_state_names(self):
 		self.state_names = [state.get() for state in self.state_names_entries]
@@ -88,7 +88,7 @@ class DFAgenerator:
 			self.transitions_entries[state] = entry
 
 		# Create button to submit transitions
-		tk.Button(self.transitions_frame, text="Submit", command=self.get_transitions).pack(side=tk.LEFT)
+		tk.Button(self.transitions_frame, text="Save", command=self.get_transitions).pack(side=tk.LEFT)
 
 	def get_transitions(self):
 		self.transitions = {}
@@ -113,7 +113,7 @@ class DFAgenerator:
 		self.final_states_entry.pack(side=tk.LEFT)
 
 		# Create button to submit initial and final states
-		tk.Button(self.final_initial_states_frame, text="Submit", command=self.process_output).pack(side=tk.LEFT)
+		tk.Button(self.final_initial_states_frame, text="Generate", command=self.process_output).pack(side=tk.LEFT)
 
 	def process_output(self):
 		self.initial_state = self.initial_state_entry.get().strip()
